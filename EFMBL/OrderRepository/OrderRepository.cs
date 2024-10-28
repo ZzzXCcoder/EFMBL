@@ -28,7 +28,7 @@ namespace EFMBL.OrderRepository
                 throw new ArgumentException($"Район '{order.DistrictName}' не найден.");
             }
 
-            // Создаём новый заказ
+          
             var newOrder = new Order
             {
                 Id = Guid.NewGuid(),
@@ -40,7 +40,7 @@ namespace EFMBL.OrderRepository
 
             try
             {
-                // Добавляем и сохраняем новый заказ
+                
                 await _context.Orders.AddAsync(newOrder);
                 await _context.SaveChangesAsync();
                 Log.Information($"Заказ добавлен успешно: {newOrder.Id}");
@@ -63,7 +63,7 @@ namespace EFMBL.OrderRepository
             {
 
                 var orders = await _context.Orders
-                .Include(o => o.District) // Это включает информацию о районе
+                .Include(o => o.District) 
                 .ToListAsync();
 
                 return orders;
@@ -110,18 +110,18 @@ namespace EFMBL.OrderRepository
                     return Enumerable.Empty<Order>();
                 }
 
-                // Определяем интервал: от времени первого заказа до +30 минут
+                
                 DateTime startTime = firstOrderTime;
                 DateTime endTime = firstOrderTime.AddMinutes(30);
 
-                // Получаем заказы, попадающие в интервал
+             
                 var sortedOrdersList = await _context.Orders
                     .Include(o => o.District)
                     .Where(o => o.DeliveryTime >= startTime && o.DeliveryTime <= endTime
                                 && o.District.DistrictName == DistrictName)
                     .ToListAsync();
 
-                // Создаем список отфильтрованных заказов
+               
                 var filteredOrders = new List<FilteredOrderResult>();
 
                 foreach (var order in sortedOrdersList)
@@ -139,7 +139,7 @@ namespace EFMBL.OrderRepository
                     filteredOrders.Add(filteredOrder);
                 }
 
-                // Сохраняем отфильтрованные результаты в базу данных
+               
                 await _context.FilteredOrderResults.AddRangeAsync(filteredOrders);
                 await _context.SaveChangesAsync();
 
@@ -153,7 +153,7 @@ namespace EFMBL.OrderRepository
         }
 
 
-        // Знаю что стоило бы вынести в отдельный класс для разделения отвественности но лень и не успеваю сдать (
+     
         public async Task<IEnumerable<FilteredOrderResult>> GetAllSortedOrdersAsync()
         {
             try
